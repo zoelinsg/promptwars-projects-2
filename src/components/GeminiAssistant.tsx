@@ -37,15 +37,27 @@ export const GeminiAssistant: React.FC = () => {
 
     // Mock Gemini Response for MVP
     setTimeout(() => {
+      const lowerInput = userMessage.text.toLowerCase();
       let botResponse = "I'm a demo assistant. In a production environment, I would use the Gemini API to provide specific answers. For now, I recommend checking the FAQ section or the official election website for your state.";
       
-      const lowerInput = userMessage.text.toLowerCase();
-      if (lowerInput.includes('register') || lowerInput.includes('registration')) {
-        botResponse = "To register to vote, you typically need to be a U.S. citizen, meet your state's residency requirements, and be 18 years old on or before Election Day. Some states allow online registration. Check the 'First-time Voter' flow for step-by-step guidance!";
+      if ((lowerInput.includes('miss') || lowerInput.includes('missed')) && lowerInput.includes('registration deadline')) {
+        botResponse = "If you miss the registration deadline, some states allow you to register and vote on the same day during early voting or on Election Day. Alternatively, you might be able to cast a provisional ballot. Always check your specific state's rules.";
+      } else if (lowerInput.includes('registration deadline') || (lowerInput.includes('register') && lowerInput.includes('deadline'))) {
+        botResponse = "The voter registration deadline is October 7, 2024. Make sure to register before then to participate in the general election.";
+      } else if (lowerInput.includes('bring') || lowerInput.includes('what to bring')) {
+        botResponse = "In most states, you should bring a valid, unexpired photo ID such as a driver's license or passport. If your state doesn't require a photo ID, a utility bill or bank statement might suffice.";
+      } else if (lowerInput.includes('first-time') || lowerInput.includes('first time')) {
+        botResponse = "As a first-time voter, your first step is to check your eligibility (U.S. citizen, 18+ by Election Day) and register to vote. Check the 'First-Time Voter' section of our app for a full guide!";
+      } else if (lowerInput.includes('check') && (lowerInput.includes('status') || lowerInput.includes('registered'))) {
+        botResponse = "You can check your voter registration status online through your state's official election website or at national sites like Vote.org. It usually only takes a few minutes using your name and date of birth.";
+      } else if (lowerInput.includes('early voting')) {
+        botResponse = "Early voting begins on October 22, 2024. In-person early voting will be available at select locations depending on your district.";
+      } else if (lowerInput.includes('register') || lowerInput.includes('registration')) {
+        botResponse = "To register to vote, you typically need to be a U.S. citizen, meet your state's residency requirements, and be 18 years old. Check the 'First-Time Voter' flow for step-by-step guidance!";
       } else if (lowerInput.includes('deadline') || lowerInput.includes('date')) {
-        botResponse = "Key deadlines include the voter registration deadline (Oct 7), start of early voting (Oct 22), mail-in ballot request deadline (Oct 29), and Election Day itself on November 5. Our Timeline component has more details.";
+        botResponse = "Key deadlines: Voter registration deadline (Oct 7), early voting starts (Oct 22), mail-in ballot request deadline (Oct 29), and Election Day (Nov 5).";
       } else if (lowerInput.includes('id') || lowerInput.includes('identification')) {
-        botResponse = "Voter ID laws vary by state. About two-thirds of states require you to show ID at the polls. It's best to bring a valid photo ID like a driver's license. Check your local election office website for specific requirements in your area.";
+        botResponse = "Voter ID laws vary by state. About two-thirds of states require ID at the polls. It's safe to bring a valid photo ID like a driver's license.";
       }
 
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: botResponse, sender: 'bot' }]);
