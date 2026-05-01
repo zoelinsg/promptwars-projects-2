@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useFirebaseSession } from '../hooks/useFirebaseSession';
 
 interface ChecklistItem {
   id: string;
@@ -16,9 +17,10 @@ const defaultItems: ChecklistItem[] = [
 
 export const Checklist: React.FC = () => {
   const [items, setItems] = useState<ChecklistItem[]>(defaultItems);
+  const { updateData: setSummary, saveData, savedHint } = useFirebaseSession<{completed: number, total: number} | null>('planSummary', null, { autoSave: false });
 
   const toggleItem = (id: string) => {
-    setItems(items.map(item => 
+    setItems(prevItems => prevItems.map(item => 
       item.id === id ? { ...item, completed: !item.completed } : item
     ));
   };
@@ -26,10 +28,25 @@ export const Checklist: React.FC = () => {
   const completedCount = items.filter(i => i.completed).length;
   const progressPercentage = Math.round((completedCount / items.length) * 100);
 
+  const handleSavePlan = async () => {
+    await setSummary({ completed: completedCount, total: items.length });
+    await saveData();
+  };
+
   return (
     <div className="card">
       <div className="flex justify-between items-center mb-4">
-        <h2>My Voting Checklist</h2>
+        <div className="flex items-center gap-2">
+          <h2>My Voting Checklist</h2>
+          <button 
+            className="btn btn-primary" 
+            style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }} 
+            onClick={handleSavePlan}
+          >
+            Save Plan
+          </button>
+          {savedHint && <span style={{ fontSize: '0.85rem', color: 'var(--primary)', opacity: 0.8 }}>Saved!</span>}
+        </div>
         <span className="badge badge-blue">
           {completedCount} of {items.length} done
         </span>

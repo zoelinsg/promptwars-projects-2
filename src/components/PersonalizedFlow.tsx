@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { UserPlus, UserCheck, HelpCircle, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useFirebaseSession } from '../hooks/useFirebaseSession';
 
 type FlowState = 'selection' | 'first-time' | 'registered' | 'help';
 
@@ -18,13 +19,16 @@ const OptionCard = ({ title, description, icon, onClick }: { title: string, desc
   </div>
 );
 
-const StepGuide = ({ title, steps, onBack }: { title: string, steps: string[], onBack: () => void }) => (
+const StepGuide = ({ title, steps, onBack, savedHint }: { title: string, steps: string[], onBack: () => void, savedHint: boolean }) => (
   <div className="card">
-    <div className="flex items-center gap-2 mb-4">
-      <button className="btn-icon" onClick={onBack} aria-label="Go back">
-        <ArrowLeft size={20} />
-      </button>
-      <h2 style={{ margin: 0 }}>{title} Guide</h2>
+    <div className="flex items-center gap-2 mb-4 justify-between">
+      <div className="flex items-center gap-2">
+        <button className="btn-icon" onClick={onBack} aria-label="Go back">
+          <ArrowLeft size={20} />
+        </button>
+        <h2 style={{ margin: 0 }}>{title} Guide</h2>
+      </div>
+      {savedHint && <span style={{ fontSize: '0.75rem', color: 'var(--primary)', opacity: 0.8 }}>Progress saved</span>}
     </div>
     <div className="stepper">
       {steps.map((step, index) => (
@@ -40,14 +44,17 @@ const StepGuide = ({ title, steps, onBack }: { title: string, steps: string[], o
 );
 
 export const PersonalizedFlow: React.FC = () => {
-  const [currentFlow, setCurrentFlow] = useState<FlowState>('selection');
+  const { data: currentFlow, updateData: setCurrentFlow, savedHint } = useFirebaseSession<FlowState>('flowState', 'selection');
 
   return (
     <div>
       {currentFlow === 'selection' && (
         <>
           <div className="text-center mb-4">
-            <h2>Let's build your voting plan</h2>
+            <div className="flex justify-center items-center gap-2 mb-2">
+              <h2 style={{ margin: 0 }}>Let's build your voting plan</h2>
+              {savedHint && <span style={{ fontSize: '0.75rem', color: 'var(--primary)', opacity: 0.8 }}>Progress saved</span>}
+            </div>
             <p>Select the option that best describes you to get a personalized guide.</p>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -84,6 +91,7 @@ export const PersonalizedFlow: React.FC = () => {
             "Find your assigned polling place and research what's on your ballot."
           ]}
           onBack={() => setCurrentFlow('selection')}
+          savedHint={savedHint}
         />
       )}
 
@@ -98,6 +106,7 @@ export const PersonalizedFlow: React.FC = () => {
             "Mark your calendar for Election Day and locate your polling place."
           ]}
           onBack={() => setCurrentFlow('selection')}
+          savedHint={savedHint}
         />
       )}
 
@@ -112,6 +121,7 @@ export const PersonalizedFlow: React.FC = () => {
             "If everything looks good, you are ready to plan how you will vote!"
           ]}
           onBack={() => setCurrentFlow('selection')}
+          savedHint={savedHint}
         />
       )}
     </div>

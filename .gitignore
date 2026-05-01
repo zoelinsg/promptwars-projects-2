@@ -27,3 +27,7 @@ node_modules/
 dist/
 .vite/
 coverage/
+
+.env
+VoteReady.mp4
+demo.jpg

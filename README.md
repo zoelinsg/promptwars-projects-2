@@ -18,6 +18,7 @@ The logic is built around guiding users based on their context:
 - **Stack**: React (via Vite) + TypeScript.
 - **Styling**: Vanilla CSS. No tailwind or heavy libraries ensuring the compiled footprint stays significantly under 1 MB.
 - **Assistant Integration (Mocked)**: The GeminiAssistant component provides a demo conversational UI. Based on the constraints, it currently provides mocked fast responses for keywords like "register", "deadline", and "id". It is structured so that adding the `@google/generative-ai` SDK and an API key later is a drop-in code replacement.
+- **Progress Persistence (Google Firestore)**: Meaningful progress (selected voter flow, checklist completion) is saved to Google Firestore using a minimal, session-based persistence approach. This ensures progress is not lost on reload without requiring complex authentication. It includes a graceful fallback to local state if Firebase is not configured via `.env` variables.
 - **Testing**: Basic component and interaction coverage provided using Vitest and React Testing Library.
 
 ## Assumptions Made
