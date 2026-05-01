@@ -67,14 +67,7 @@ export const GeminiAssistant: React.FC = () => {
     } catch (error) {
       console.error('Error generating AI response:', error);
       
-      let errorMessage = "I am currently unable to connect to my AI systems. For immediate help, please check the FAQ section or the official election website for your state.";
-      
-      // Preserve fallback behavior only for true misconfiguration or runtime failure, but expose the error message
-      // so the user knows if it's a configuration issue (e.g., API not enabled, invalid model, invalid provider).
-      const e = error as { message?: string };
-      if (e && e.message) {
-        errorMessage = `I am currently unable to connect to my AI systems. Error: ${e.message}`;
-      }
+      const errorMessage = "I am having trouble reaching the AI service right now. Election rules vary by state, so please check your official state election website for the most accurate deadlines and requirements.";
 
       setMessages(prev => [...prev, { 
         id: (Date.now() + 1).toString(), 
