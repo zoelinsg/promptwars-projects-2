@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { logAppEvent } from '../firebase';
 
 const faqs = [
   {
@@ -25,11 +24,7 @@ export const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const toggleAccordion = (index: number) => {
-    const isOpening = openIndex !== index;
-    setOpenIndex(isOpening ? index : null);
-    if (isOpening) {
-      logAppEvent('faq_opened', { question: faqs[index].question });
-    }
+    setOpenIndex(openIndex === index ? null : index);
   };
 
   return (

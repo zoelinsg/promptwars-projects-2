@@ -26,7 +26,6 @@ The logic is built around guiding users based on their context:
 - **Icons**: Lucide React
 - **Persistence**: Google Firebase (Firestore) for lightweight session and progress storage.
 - **AI Assistant**: Google Firebase AI Logic (Vertex AI in Firebase) powering a real-time Gemini-2.5-flash chat assistant.
-- **Security & Analytics**: Firebase App Check ensures requests come from an authentic app, and Firebase Analytics is used to measure user engagement (e.g., plans saved, FAQ usage).
 
 ## Environment Variables
 The application relies on Firebase for both data persistence and the AI logic.

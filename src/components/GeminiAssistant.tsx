@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
-import { vertexAI, isFirebaseConfigured, logAppEvent } from '../firebase';
+import { vertexAI, isFirebaseConfigured } from '../firebase';
 
 interface Message {
   id: string;
@@ -37,8 +37,6 @@ export const GeminiAssistant: React.FC = () => {
     setIsTyping(true);
 
     try {
-      logAppEvent('assistant_question_submitted');
-
       if (!isFirebaseConfigured || !vertexAI) {
         throw new Error('Firebase is not configured.');
       }
