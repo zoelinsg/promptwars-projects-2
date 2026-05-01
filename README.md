@@ -28,7 +28,10 @@ The logic is built around guiding users based on their context:
 - **AI Assistant**: Google Firebase AI Logic (Vertex AI in Firebase) powering a real-time Gemini-2.5-flash chat assistant.
 
 ## Environment Variables
-Create a `.env` file in the root directory and configure the following variables. The application relies on Firebase for both data persistence and the AI logic:
+The application relies on Firebase for both data persistence and the AI logic.
+
+- **Local Development**: Create a `.env` file in the root directory (see `.env.example` for required variables).
+- **Production**: A `.env.production` file is included to provide the public Firebase configuration to the production build (e.g. Cloud Run) via Vite. These values are public and safe to expose in client-side code.
 
 ## Assumptions Made
 1. **Static Dates for MVP**: Election dates in the Timeline component are hardcoded to the 2024 general election to reduce complexity. A production version would require querying a state/district API.
