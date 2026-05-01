@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAI, GoogleAIBackend } from 'firebase/ai';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,6 +16,7 @@ export const isFirebaseConfigured = !!firebaseConfig.projectId;
 
 const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null;
 export const db = app ? getFirestore(app) : null;
+export const vertexAI = app ? getAI(app, { backend: new GoogleAIBackend() }) : null;
 
 // Simple session management
 const SESSION_KEY = 'vote_ready_session_id';

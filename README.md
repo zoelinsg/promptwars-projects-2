@@ -12,18 +12,27 @@ The logic is built around guiding users based on their context:
 1. **Personalization**: A quick selection flow identifies if the user is a first-time voter, registered voter, or needs help finding their status.
 2. **Visualization**: A timeline clearly articulates when critical events happen (registration, early voting, absentee requests).
 3. **Actionability**: A checklist tracks concrete things the user needs to do before election day.
-4. **Assistance**: A built-in chatbot simulates an AI assistant ready to answer specific questions, making the system interactive rather than a static site.
+4. **Assistance**: A built-in chatbot uses Gemini powered by Firebase AI Logic to provide real-time, context-aware answers to election-related questions.
 
 ## How the Solution Works
 - **Stack**: React (via Vite) + TypeScript.
 - **Styling**: Vanilla CSS. No tailwind or heavy libraries ensuring the compiled footprint stays significantly under 1 MB.
-- **Assistant Integration (Mocked)**: The GeminiAssistant component provides a demo conversational UI. Based on the constraints, it currently provides mocked fast responses for keywords like "register", "deadline", and "id". It is structured so that adding the `@google/generative-ai` SDK and an API key later is a drop-in code replacement.
 - **Progress Persistence (Google Firestore)**: Meaningful progress (selected voter flow, checklist completion) is saved to Google Firestore using a minimal, session-based persistence approach. This ensures progress is not lost on reload without requiring complex authentication. It includes a graceful fallback to local state if Firebase is not configured via `.env` variables.
 - **Testing**: Basic component and interaction coverage provided using Vitest and React Testing Library.
 
+## Tech Stack
+- **Framework**: React 19 + TypeScript + Vite
+- **Styling**: Vanilla CSS (CSS Variables for theming)
+- **Icons**: Lucide React
+- **Persistence**: Google Firebase (Firestore) for lightweight session and progress storage.
+- **AI Assistant**: Google Firebase AI Logic (Vertex AI in Firebase) powering a real-time Gemini-2.5-flash chat assistant.
+
+## Environment Variables
+Create a `.env` file in the root directory and configure the following variables. The application relies on Firebase for both data persistence and the AI logic:
+
 ## Assumptions Made
 1. **Static Dates for MVP**: Election dates in the Timeline component are hardcoded to the 2024 general election to reduce complexity. A production version would require querying a state/district API.
-2. **Mock AI**: The Gemini integration simulates a backend connection to keep the demo self-contained and avoids exposing real API keys.
+2. **Gemini AI**: The assistant uses Vertex AI in Firebase to provide responses, ensuring secure and scalable AI interactions without exposing raw API keys on the client side.
 3. **Deployment Target**: The application includes a `Dockerfile` and `nginx.conf` set up specifically for stateless container deployment on services like Google Cloud Run. 
 
 ## Running Locally

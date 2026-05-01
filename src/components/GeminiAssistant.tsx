@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
+import { vertexAI, isFirebaseConfigured } from '../firebase';
 
 interface Message {
   id: string;
@@ -26,7 +27,7 @@ export const GeminiAssistant: React.FC = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -35,34 +36,54 @@ export const GeminiAssistant: React.FC = () => {
     setInput('');
     setIsTyping(true);
 
-    // Mock Gemini Response for MVP
-    setTimeout(() => {
-      const lowerInput = userMessage.text.toLowerCase();
-      let botResponse = "I'm a demo assistant. In a production environment, I would use the Gemini API to provide specific answers. For now, I recommend checking the FAQ section or the official election website for your state.";
-      
-      if ((lowerInput.includes('miss') || lowerInput.includes('missed')) && lowerInput.includes('registration deadline')) {
-        botResponse = "If you miss the registration deadline, some states allow you to register and vote on the same day during early voting or on Election Day. Alternatively, you might be able to cast a provisional ballot. Always check your specific state's rules.";
-      } else if (lowerInput.includes('registration deadline') || (lowerInput.includes('register') && lowerInput.includes('deadline'))) {
-        botResponse = "The voter registration deadline is October 7, 2024. Make sure to register before then to participate in the general election.";
-      } else if (lowerInput.includes('bring') || lowerInput.includes('what to bring')) {
-        botResponse = "In most states, you should bring a valid, unexpired photo ID such as a driver's license or passport. If your state doesn't require a photo ID, a utility bill or bank statement might suffice.";
-      } else if (lowerInput.includes('first-time') || lowerInput.includes('first time')) {
-        botResponse = "As a first-time voter, your first step is to check your eligibility (U.S. citizen, 18+ by Election Day) and register to vote. Check the 'First-Time Voter' section of our app for a full guide!";
-      } else if (lowerInput.includes('check') && (lowerInput.includes('status') || lowerInput.includes('registered'))) {
-        botResponse = "You can check your voter registration status online through your state's official election website or at national sites like Vote.org. It usually only takes a few minutes using your name and date of birth.";
-      } else if (lowerInput.includes('early voting')) {
-        botResponse = "Early voting begins on October 22, 2024. In-person early voting will be available at select locations depending on your district.";
-      } else if (lowerInput.includes('register') || lowerInput.includes('registration')) {
-        botResponse = "To register to vote, you typically need to be a U.S. citizen, meet your state's residency requirements, and be 18 years old. Check the 'First-Time Voter' flow for step-by-step guidance!";
-      } else if (lowerInput.includes('deadline') || lowerInput.includes('date')) {
-        botResponse = "Key deadlines: Voter registration deadline (Oct 7), early voting starts (Oct 22), mail-in ballot request deadline (Oct 29), and Election Day (Nov 5).";
-      } else if (lowerInput.includes('id') || lowerInput.includes('identification')) {
-        botResponse = "Voter ID laws vary by state. About two-thirds of states require ID at the polls. It's safe to bring a valid photo ID like a driver's license.";
+    try {
+      if (!isFirebaseConfigured || !vertexAI) {
+        throw new Error('Firebase is not configured.');
       }
 
+      const { getGenerativeModel } = await import('firebase/ai');
+      
+      const model = getGenerativeModel(vertexAI, {
+        model: 'gemini-2.5-flash-lite',
+        systemInstruction: "You are VoteReady Assistant, a helpful, polite guide for election process education. Your purpose is to help users understand voting steps, key election dates, registration requirements, what to bring on election day, how to check registration status, and early voting basics. Do NOT answer questions about unrelated topics. If a user asks something unrelated to elections or voting, politely decline and steer them back to voting preparation. Format your answers clearly, using bullet points if requested or if it makes the answer easier to read.",
+      });
+
+      // Format previous messages for context
+      const history = messages
+        // Skip the initial hardcoded greeting if needed, or map it. Gemini requires alternating user/model turns, 
+        // starting with 'user'. Since our first message is 'bot', we can either skip it or just pass the latest query.
+        // For simplicity and to avoid invalid history errors, we'll just send the latest query with context of the immediate conversation.
+        .filter(m => m.id !== '1') // skip the initial bot greeting to avoid role sequence errors
+        .map(msg => ({
+          role: (msg.sender === 'user' ? 'user' : 'model') as 'user' | 'model',
+          parts: [{ text: msg.text }]
+        }));
+
+      const chat = model.startChat({ history });
+      const result = await chat.sendMessage(userMessage.text);
+      const botResponse = result.response.text();
+
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: botResponse, sender: 'bot' }]);
+    } catch (error) {
+      console.error('Error generating AI response:', error);
+      
+      let errorMessage = "I am currently unable to connect to my AI systems. For immediate help, please check the FAQ section or the official election website for your state.";
+      
+      // Preserve fallback behavior only for true misconfiguration or runtime failure, but expose the error message
+      // so the user knows if it's a configuration issue (e.g., API not enabled, invalid model, invalid provider).
+      const e = error as { message?: string };
+      if (e && e.message) {
+        errorMessage = `I am currently unable to connect to my AI systems. Error: ${e.message}`;
+      }
+
+      setMessages(prev => [...prev, { 
+        id: (Date.now() + 1).toString(), 
+        text: errorMessage, 
+        sender: 'bot' 
+      }]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   return (
