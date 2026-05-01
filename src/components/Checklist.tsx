@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFirebaseSession } from '../hooks/useFirebaseSession';
+import { logAppEvent } from '../firebase';
 
 interface ChecklistItem {
   id: string;
@@ -31,6 +32,7 @@ export const Checklist: React.FC = () => {
   const handleSavePlan = async () => {
     await setSummary({ completed: completedCount, total: items.length });
     await saveData();
+    logAppEvent('plan_saved', { completedCount, total: items.length });
   };
 
   return (

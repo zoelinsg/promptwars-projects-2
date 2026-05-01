@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserPlus, UserCheck, HelpCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useFirebaseSession } from '../hooks/useFirebaseSession';
+import { logAppEvent } from '../firebase';
 
 type FlowState = 'selection' | 'first-time' | 'registered' | 'help';
 
@@ -46,6 +47,13 @@ const StepGuide = ({ title, steps, onBack, savedHint }: { title: string, steps: 
 export const PersonalizedFlow: React.FC = () => {
   const { data: currentFlow, updateData: setCurrentFlow, savedHint } = useFirebaseSession<FlowState>('flowState', 'selection');
 
+  const handleFlowSelect = (flow: FlowState) => {
+    setCurrentFlow(flow);
+    if (flow !== 'selection') {
+      logAppEvent('voter_flow_selected', { flow_type: flow });
+    }
+  };
+
   return (
     <div>
       {currentFlow === 'selection' && (
@@ -62,19 +70,19 @@ export const PersonalizedFlow: React.FC = () => {
               title="First-Time Voter" 
               description="I've never voted before and need help registering and understanding the process."
               icon={<UserPlus size={40} />}
-              onClick={() => setCurrentFlow('first-time')}
+              onClick={() => handleFlowSelect('first-time')}
             />
             <OptionCard 
               title="Registered Voter" 
               description="I'm already registered but want to prepare for the upcoming election."
               icon={<UserCheck size={40} />}
-              onClick={() => setCurrentFlow('registered')}
+              onClick={() => handleFlowSelect('registered')}
             />
             <OptionCard 
               title="I Need Help" 
               description="I'm not sure of my status or next steps. Help me figure it out."
               icon={<HelpCircle size={40} />}
-              onClick={() => setCurrentFlow('help')}
+              onClick={() => handleFlowSelect('help')}
             />
           </div>
         </>
