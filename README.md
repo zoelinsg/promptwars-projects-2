@@ -58,3 +58,8 @@ The application relies on Firebase for both data persistence and the AI logic.
 docker build -t voteready .
 docker run -p 8080:8080 voteready
 ```
+
+## Demo
+[▶ Watch Demo on YouTube](https://youtu.be/xfV_bLeV0fk)
+
+[![Demo Video](https://img.youtube.com/vi/xfV_bLeV0fk/0.jpg)](https://youtu.be/xfV_bLeV0fk)
